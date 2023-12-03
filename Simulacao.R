@@ -1,4 +1,8 @@
-# Simulacao #### PRIMEIRA VERSAO OFICIALs
+##### SIMULACAO DE AMBIENTE #####
+
+@Author: Ramon M. Teixeira
+@Date: 2023-12-03
+@Version: 1.0
 
 ##### Enunciado #####
 

@@ -36,7 +36,7 @@
 
 ##### Coleta e Armazenamento dos Dados da Simulacao #####
 
-### Parametros Fixos:
+### Parametros Fixos (SUGESTAO):
 
 # Area Total = 25 x 25 (625)
 # Numero de Geracoes = 50
@@ -52,7 +52,6 @@
 
 
 planilha <- read.csv("planilha.csv")
-
 
 registro <- data.frame(
     NumeroDeGeracoes = 10,
@@ -72,7 +71,11 @@ registro <- data.frame(
     NumeroDaGeracaoEmQuePredadorFoiExtinto = 10
 )
 
+registro$NumeroDeGeracoes <- 1
+
 planilha <- rbind(planilha, registro)
+
+write.csv(planilha, "planilha.csv", row.names = FALSE)
 
 ##### Inputs #####
 
