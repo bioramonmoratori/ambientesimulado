@@ -1,5 +1,5 @@
-##### SIMULACAO DE AMBIENTE #####
 
+@Title: Simulacao de um Ecossistema
 @Author: Ramon M. Teixeira
 @Date: 2023-12-03
 @Version: 1.0
