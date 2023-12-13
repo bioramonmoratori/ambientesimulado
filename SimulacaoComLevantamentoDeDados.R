@@ -24,6 +24,7 @@
 # A reproducao so ocorre a cada configuracao especifica de tempo
 # A reproducao pode ocorrer em cima de um substrato ou campo vazio apenas
 # A reproducao ocorre em um campo adjascente aleatorio
+# Cada reproducao geram dois descendentes
 
 # Apenas os predadores se locomovem
 
@@ -38,7 +39,7 @@
 
 ### Parametros Fixos (SUGESTAO):
 
-# Area Total = 25 x 25 (625)
+# Area Total = 30 x 30 (900)
 # Numero de Geracoes = 50
 
 # Tempo de Vida da Presa = 4
@@ -50,44 +51,73 @@
 # Tempo de Reproducao da Presa = 3
 # Tempo de Reproducao do Predador = 7
 
+# Configurando armazenamento
 
+### PRIMEIRA VEZ RODANDO O CODIGO
+# Necessario criar uma base de dados inicial vazia e consumi-la
+
+# registro <- data.frame(
+#     NumeroDoExperimento = 0,
+#     NumeroDaGeracao = 0,
+#     NumeroDeEspacosVazios = 0,
+#     NumeroDeSubstratosInicial = 0,
+#     NumeroDePresasInicial = 0,
+#     NumeroDePredadoresInicial = 0,
+#     NumeroDePresasReproduzidas = 0,
+#     NumeroDePredadoresReproduzidos = 0,
+#     NumeroDePresasMortasDeFome = 0,
+#     NumeroDePredadoresMortosDeFome = 0,
+#     NumeroDePresasMortasPorIdade = 0,
+#     NumeroDePredadoresMortosPorIdade = 0,
+#     NumeroDePresasMortasPorPredadores = 0,
+#     NumeroDeSubstratosConsumidos = 0,
+#     NumeroDeSubstratoRestante = 0,
+#     NumeroDePresasVivas = 0,
+#     NumeroDePredadoresVivos = 0
+# )
+
+# write.csv(registro, "planilha.csv", row.names = FALSE)
+
+# Apos isso, comente o codigo acima e rode o codigo inteiro abaixo
 planilha <- read.csv("planilha.csv")
 
 registro <- data.frame(
-    NumeroDeGeracoes = 10,
-    NumeroDeEspacosVazios = 10,
-    NumeroDeSubstratosInicial = 10,
-    NumeroDePresasInicial = 10,
-    NumeroDePredadoresInicial = 10,
-    NumeroDePresasReproduzidas = 10,
-    NumeroDePredadoresReproduzidos = 10,
-    NumeroDePresasMortasDeFome = 10,
-    NumeroDePredadoresMortosDeFome = 10,
-    NumeroDePresasMortasPorIdade = 10,
-    NumeroDePredadoresMortosPorIdade = 10,
-    NumeroDePresasMortasPorPredadores = 10,
-    NumeroDeSubstratosConsumidos = 10,
-    NumeroDaGeracaoEmQuePresaFoiExtinta = 10,
-    NumeroDaGeracaoEmQuePredadorFoiExtinto = 10
+    NumeroDoExperimento = 0,
+    NumeroDaGeracao = 0,
+    NumeroDeEspacosVazios = 0,
+    NumeroDeSubstratosInicial = 0,
+    NumeroDePresasInicial = 0,
+    NumeroDePredadoresInicial = 0,
+    NumeroDePresasReproduzidas = 0,
+    NumeroDePredadoresReproduzidos = 0,
+    NumeroDePresasMortasDeFome = 0,
+    NumeroDePredadoresMortosDeFome = 0,
+    NumeroDePresasMortasPorIdade = 0,
+    NumeroDePredadoresMortosPorIdade = 0,
+    NumeroDePresasMortasPorPredadores = 0,
+    NumeroDeSubstratosConsumidos = 0,
+    NumeroDeSubstratoRestante = 0,
+    NumeroDePresasVivas = 0,
+    NumeroDePredadoresVivos = 0
 )
-
-registro$NumeroDeGeracoes <- 1
-
-planilha <- rbind(planilha, registro)
-
-write.csv(planilha, "planilha.csv", row.names = FALSE)
+#lista de registros
+planilha <<- data.frame(planilha)
 
 ##### Inputs #####
 
+# Experimento
+# Mudar a cada armazenamento
+numeroDoExperimento <- 30
+
 # Area do Mapa
-linhasTotais <- 25
-colunasTotais <- 25
+linhasTotais <- 30
+colunasTotais <- 30
 numeroDeGeracoes <- 50
 
 # Elementos do Mapa
-quantidadeDePresas <- 150
-quantidadeDePredadores <- 50
-quantidadeDeSubstrato <- 420
+quantidadeDePresas <- 50
+quantidadeDePredadores <- 150
+quantidadeDeSubstrato <- 700
 
 # Parametros dos Elementos
 # Tempo de Morte com Fome deve ser menor que o Tempo de Demora Para a Reproducao
@@ -107,6 +137,27 @@ Entidade <- list(
   tempoRestanteDeVida = 0, 
   tempoParaProximaReproducao = 0   
 )
+
+# Registrando parametros iniciais
+registro$NumeroDoExperimento <- numeroDoExperimento
+registro$NumeroDeSubstratosInicial <- quantidadeDeSubstrato
+registro$NumeroDePresasInicial <- quantidadeDePresas
+registro$NumeroDePredadoresInicial <- quantidadeDePredadores
+
+# Criando local para registro dos parametros que sofrem mudanca com as geracoes
+numeroDaGeracao <- 1
+numeroDeEspacosVazios <- 0
+numeroDePresasReproduzidas <- 0
+numeroDePredadoresReproduzidos <- 0
+numeroDePresasMortasDeFome <- 0
+numeroDePredadoresMortosDeFome <- 0
+numeroDePresasMortasPorIdade <- 0
+numeroDePredadoresMortosPorIdade <- 0
+numeroDePresasMortasPorPredadores <- 0
+numeroDeSubstratosConsumidos <- 0
+numeroDeSubstratosRestantes <- 0
+numeroDePresasVivas <- 0
+numeroDePredadoresVivos <- 0
 
 ##### Funcoes #####
 
@@ -132,6 +183,8 @@ criarMapaInicial <- function() {
             linha <- sample(1:linhasTotais, 1)
             coluna <- sample(1:colunasTotais, 1)
             mapa[[linha, coluna]][[1]][1] <- 1
+
+            numeroDeSubstratosRestantes <- numeroDeSubstratosRestantes + 1
         }
     } else {
         print("Quantidade de substrato incompativel com o tamanho do mapa")
@@ -145,6 +198,8 @@ criarMapaInicial <- function() {
         for (j in 1:colunasTotais) {
             if(mapa[[i, j]][[1]][1] == 0){
                 espacosVazios <- espacosVazios + 1
+
+                numeroDeEspacosVazios <- numeroDeEspacosVazios + 1
             }
         }
     }
@@ -160,6 +215,8 @@ criarMapaInicial <- function() {
             mapa[[linha, coluna]][[2]][1] <- tempoDeMorteDaPresaComFome
             mapa[[linha, coluna]][[3]][1] <- tempoDeVidaDaPresa
             mapa[[linha, coluna]][[4]][1] <- tempoDeReproducaoDaPresa
+
+            numeroDePresasVivas <- numeroDePresasVivas + 1
         }
     } else {
         print("Quantidade de presas incompativel com o numero de espacos vazios no mapa")
@@ -188,16 +245,41 @@ criarMapaInicial <- function() {
             mapa[[linha, coluna]][[2]][1] <- tempoDeMorteDoPredadorComFome
             mapa[[linha, coluna]][[3]][1] <- tempoDeVidaDoPredador
             mapa[[linha, coluna]][[4]][1] <- tempoDeReproducaoDoPredador
+
+            numeroDePredadoresVivos <- numeroDePredadoresVivos + 1
         }
     } else {
         print("Quantidade de predadores incompativel com o numero de espacos vazios no mapa")
     }
+
+    # Armazenando mapa inicial
+    registro$NumeroDoExperimento <- numeroDoExperimento
+    registro$NumeroDaGeracao <- numeroDaGeracao
+    registro$NumeroDeEspacosVazios <- numeroDeEspacosVazios
+    registro$NumeroDeSubstratosInicial <- quantidadeDeSubstrato
+    registro$NumeroDePresasInicial <- quantidadeDePresas
+    registro$NumeroDePredadoresInicial <- quantidadeDePredadores
+    registro$NumeroDePresasReproduzidas <- numeroDePresasReproduzidas
+    registro$NumeroDePredadoresReproduzidos <- numeroDePredadoresReproduzidos
+    registro$NumeroDePresasMortasDeFome <- numeroDePresasMortasDeFome
+    registro$NumeroDePredadoresMortosDeFome <- numeroDePredadoresMortosDeFome
+    registro$NumeroDePresasMortasPorIdade <- numeroDePresasMortasPorIdade
+    registro$NumeroDePredadoresMortosPorIdade <- numeroDePredadoresMortosPorIdade
+    registro$NumeroDePresasMortasPorPredadores <- numeroDePresasMortasPorPredadores
+    registro$NumeroDeSubstratosConsumidos <- numeroDeSubstratosConsumidos
+    registro$NumeroDeSubstratoRestante <- numeroDeSubstratosRestantes
+    registro$NumeroDePresasVivas <- numeroDePresasVivas
+    registro$NumeroDePredadoresVivos <- numeroDePredadoresVivos
+
+    planilha <<- rbind(planilha, registro)
+
 
     return (mapa)
 }
 
 proximaGeracao <- function(mapa) {
 
+    numeroDaGeracao <<- numeroDaGeracao + 1
     novaGeracao <- mapa
 
     for(i in 1:nrow(mapa)){
@@ -218,10 +300,33 @@ proximaGeracao <- function(mapa) {
             if(novaGeracao[[i, j]][[1]][1] != 0 && novaGeracao[[i, j]][[1]][1] != 1){
                 if((novaGeracao[[i, j]][[1]][1] == 2 || novaGeracao[[i, j]][[1]][1] == 3) && novaGeracao[[i, j]][[2]][1] <= 0){
                     novaGeracao[[i, j]][[1]][1] <- 0
+
+                    if(novaGeracao[[i, j]][[1]][1] == 2){
+                        numeroDePresasMortasDeFome <- numeroDePresasMortasDeFome + 1
+                    } else {
+                        numeroDePredadoresMortosDeFome <- numeroDePredadoresMortosDeFome + 1
+                    }
+
                 } 
                 else if((novaGeracao[[i, j]][[1]][1] == 2 || novaGeracao[[i, j]][[1]][1] == 3 ) && novaGeracao[[i, j]][[3]][1] <= 0){
                     novaGeracao[[i, j]][[1]][1] <- 0
+
+                    if(novaGeracao[[i, j]][[1]][1] == 2){
+                        numeroDePresasMortasPorIdade <- numeroDePresasMortasPorIdade + 1
+                    } else {
+                        numeroDePredadoresMortosPorIdade <- numeroDePredadoresMortosPorIdade + 1
+                    }
                 }
+            }
+
+            if(novaGeracao[[i, j]][[1]][1] == 0){
+                numeroDeEspacosVazios <- numeroDeEspacosVazios + 1
+            } else if(novaGeracao[[i, j]][[1]][1] == 2){
+                numeroDePresasVivas <- numeroDePresasVivas + 1
+            } else if(novaGeracao[[i, j]][[1]][1] == 3){
+                numeroDePredadoresVivos <- numeroDePredadoresVivos + 1
+            } else if(novaGeracao[[i, j]][[1]][1] == 1){
+                numeroDeSubstratosRestantes <- numeroDeSubstratosRestantes + 1
             }
         }
     }
@@ -236,18 +341,26 @@ proximaGeracao <- function(mapa) {
                     if(i > 2 && novaGeracao[[i - 1, j]][[1]][1] == 1){
                         novaGeracao[[i - 1, j]][[1]][1] <- 0
                         novaGeracao[[i, j]][[2]][1] <- novaGeracao[[i,j]][[2]][1] + tempoDeMorteDaPresaComFome
+
+                        numeroDeSubstratosConsumidos <- numeroDeSubstratosConsumidos + 1
                     } 
                     else if(i < (linhasTotais - 1) && novaGeracao[[i + 1, j]][[1]][1] == 1){
                         novaGeracao[[i + 1, j]][[1]][1] <- 0 
                         novaGeracao[[i, j]][[2]][1] <- novaGeracao[[i,j]][[2]][1] + tempoDeMorteDaPresaComFome
+
+                        numeroDeSubstratosConsumidos <- numeroDeSubstratosConsumidos + 1
                     }
                     else if(j > 1 && novaGeracao[[i, j - 1]][[1]][1] == 1){
                         novaGeracao[[i, j - 1]][[1]][1] <- 0 
                         novaGeracao[[i, j]][[2]][1] <- novaGeracao[[i,j]][[2]][1] + tempoDeMorteDaPresaComFome
+
+                        numeroDeSubstratosConsumidos <- numeroDeSubstratosConsumidos + 1
                     }
                     else if(j < (colunasTotais - 1) && novaGeracao[[i, j + 1]][[1]][1] == 1){
                         novaGeracao[[i, j + 1]][[1]][1] <- 0 
                         novaGeracao[[i, j]][[2]][1] <- novaGeracao[[i,j]][[2]][1] + tempoDeMorteDaPresaComFome
+
+                        numeroDeSubstratosConsumidos <- numeroDeSubstratosConsumidos + 1
                     }  
                 }
             }
@@ -262,18 +375,26 @@ proximaGeracao <- function(mapa) {
                     if(i > 2 && novaGeracao[[i - 1, j]][[1]][1] == 2){
                         novaGeracao[[i - 1, j]][[1]][1] <- 0
                         novaGeracao[[i, j]][[2]][1] <- novaGeracao[[i,j]][[2]][1] + tempoDeMorteDoPredadorComFome
+
+                        numeroDePresasMortasPorPredadores <- numeroDePresasMortasPorPredadores + 1
                     } 
                     else if(i < (linhasTotais - 1) && novaGeracao[[i + 1, j]][[1]][1] == 2){
                         novaGeracao[[i + 1, j]][[1]][1] <- 0 
                         novaGeracao[[i, j]][[2]][1] <- novaGeracao[[i,j]][[2]][1] + tempoDeMorteDoPredadorComFome
+
+                        numeroDePresasMortasPorPredadores <- numeroDePresasMortasPorPredadores + 1
                     }
                     else if(j > 1 && novaGeracao[[i, j - 1]][[1]][1] == 2){
                         novaGeracao[[i, j - 1]][[1]][1] <- 0 
                         novaGeracao[[i, j]][[2]][1] <- novaGeracao[[i,j]][[2]][1] + tempoDeMorteDoPredadorComFome
+
+                        numeroDePresasMortasPorPredadores <- numeroDePresasMortasPorPredadores + 1
                     }
                     else if(j < (colunasTotais - 1) && novaGeracao[[i, j + 1]][[1]][1] == 2){
                         novaGeracao[[i, j + 1]][[1]][1] <- 0 
                         novaGeracao[[i, j]][[2]][1] <- novaGeracao[[i,j]][[2]][1] + tempoDeMorteDoPredadorComFome
+
+                        numeroDePresasMortasPorPredadores <- numeroDePresasMortasPorPredadores + 1
                     }  
                 }
             }
@@ -334,6 +455,8 @@ proximaGeracao <- function(mapa) {
                                 novaGeracao[[i - 1, j]][[4]][1] <- tempoDeReproducaoDaPresa
 
                                 novaGeracao[[i, j]][[4]][1] <- tempoDeReproducaoDaPresa
+
+                                numeroDePresasReproduzidas <- numeroDePresasReproduzidas + 1
                             } 
                             else if(ondeReproduzir == 2){
                                 novaGeracao[[i + 1, j]][[1]][1] <- 2
@@ -342,6 +465,8 @@ proximaGeracao <- function(mapa) {
                                 novaGeracao[[i + 1, j]][[4]][1] <- tempoDeReproducaoDaPresa
 
                                 novaGeracao[[i, j]][[4]][1] <- tempoDeReproducaoDaPresa
+
+                                numeroDePresasReproduzidas <- numeroDePresasReproduzidas + 1
                             }
                             else if(ondeReproduzir == 3){
                                 novaGeracao[[i, j - 1]][[1]][1] <- 2
@@ -350,6 +475,8 @@ proximaGeracao <- function(mapa) {
                                 novaGeracao[[i, j - 1]][[4]][1] <- tempoDeReproducaoDaPresa
 
                                 novaGeracao[[i, j]][[4]][1] <- tempoDeReproducaoDaPresa
+
+                                numeroDePresasReproduzidas <- numeroDePresasReproduzidas + 1
                             }
                             else if(ondeReproduzir == 4){
                                 novaGeracao[[i, j + 1]][[1]][1] <- 2
@@ -358,6 +485,8 @@ proximaGeracao <- function(mapa) {
                                 novaGeracao[[i, j + 1]][[4]][1] <- tempoDeReproducaoDaPresa
 
                                 novaGeracao[[i, j]][[4]][1] <- tempoDeReproducaoDaPresa
+
+                                numeroDePresasReproduzidas <- numeroDePresasReproduzidas + 1
                             } 
 
                             numeroDeReproducoes <- numeroDeReproducoes + 1
@@ -412,6 +541,8 @@ proximaGeracao <- function(mapa) {
                                 novaGeracao[[i - 1, j]][[4]][1] <- tempoDeReproducaoDoPredador
 
                                 novaGeracao[[i, j]][[4]][1] <- tempoDeReproducaoDoPredador
+
+                                numeroDePredadoresReproduzidos <- numeroDePredadoresReproduzidos + 1
                             } 
                             else if(ondeReproduzir == 2){
                                 novaGeracao[[i + 1, j]][[1]][1] <- 3
@@ -420,6 +551,8 @@ proximaGeracao <- function(mapa) {
                                 novaGeracao[[i + 1, j]][[4]][1] <- tempoDeReproducaoDoPredador
 
                                 novaGeracao[[i, j]][[4]][1] <- tempoDeReproducaoDoPredador
+
+                                numeroDePredadoresReproduzidos <- numeroDePredadoresReproduzidos + 1
                             }
                             else if(ondeReproduzir == 3){
                                 novaGeracao[[i, j - 1]][[1]][1] <- 3
@@ -428,6 +561,8 @@ proximaGeracao <- function(mapa) {
                                 novaGeracao[[i, j - 1]][[4]][1] <- tempoDeReproducaoDoPredador
 
                                 novaGeracao[[i, j]][[4]][1] <- tempoDeReproducaoDoPredador
+
+                                numeroDePredadoresReproduzidos <- numeroDePredadoresReproduzidos + 1
                             }
                             else if(ondeReproduzir == 4){
                                 novaGeracao[[i, j + 1]][[1]][1] <- 3
@@ -436,6 +571,8 @@ proximaGeracao <- function(mapa) {
                                 novaGeracao[[i, j + 1]][[4]][1] <- tempoDeReproducaoDoPredador
 
                                 novaGeracao[[i, j]][[4]][1] <- tempoDeReproducaoDoPredador
+
+                                numeroDePredadoresReproduzidos <- numeroDePredadoresReproduzidos + 1
                             }
 
                             numeroDeReproducoes <- numeroDeReproducoes + 1
@@ -528,6 +665,26 @@ proximaGeracao <- function(mapa) {
         }
     }
 
+    registro$NumeroDoExperimento <- numeroDoExperimento
+    registro$NumeroDaGeracao <- numeroDaGeracao
+    registro$NumeroDeEspacosVazios <- numeroDeEspacosVazios
+    registro$NumeroDeSubstratosInicial <- quantidadeDeSubstrato
+    registro$NumeroDePresasInicial <- quantidadeDePresas
+    registro$NumeroDePredadoresInicial <- quantidadeDePredadores
+    registro$NumeroDePresasReproduzidas <- numeroDePresasReproduzidas
+    registro$NumeroDePredadoresReproduzidos <- numeroDePredadoresReproduzidos
+    registro$NumeroDePresasMortasDeFome <- numeroDePresasMortasDeFome
+    registro$NumeroDePredadoresMortosDeFome <- numeroDePredadoresMortosDeFome
+    registro$NumeroDePresasMortasPorIdade <- numeroDePresasMortasPorIdade
+    registro$NumeroDePredadoresMortosPorIdade <- numeroDePredadoresMortosPorIdade
+    registro$NumeroDePresasMortasPorPredadores <- numeroDePresasMortasPorPredadores
+    registro$NumeroDeSubstratosConsumidos <- numeroDeSubstratosConsumidos
+    registro$NumeroDeSubstratoRestante <- numeroDeSubstratosRestantes
+    registro$NumeroDePresasVivas <- numeroDePresasVivas
+    registro$NumeroDePredadoresVivos <- numeroDePredadoresVivos
+
+    planilha <<- rbind(planilha, registro)
+
     return (novaGeracao)
 }
 
@@ -556,8 +713,8 @@ desenharMapa <- function(mapa) {
 atualizarAnimacao <- function(mapa, geracao) {
   mapa <<- proximaGeracao(mapa)
   desenharMapa(mapa)
-  
-  title(paste("Geração:", geracao), line = 3, cex.main = 1.5)
+
+  title(paste("Geração:", geracao), line = 2, cex.main = 2.5)
 }
 
 ##### CRIANDO SIMULACAO #####
@@ -570,4 +727,7 @@ saveGIF({
   for (geracao in 1:numeroDeGeracoes) {
     atualizarAnimacao(mapa, geracao)
   }
-}, movie.name = "modelo_animado.gif", ani.width = 1000, ani.height = 1000)
+}, movie.name = "Exp30.gif", ani.width = 1000, ani.height = 1000)
+
+write.csv(planilha, file = "planilha.csv", row.names = FALSE)
+
